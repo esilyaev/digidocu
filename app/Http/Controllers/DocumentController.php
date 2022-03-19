@@ -43,12 +43,13 @@ class DocumentController extends Controller
     /** @var PermissionRepository $permissionRepository */
     private $permissionRepository;
 
-    public function __construct(TagRepository $tagRepository,
-                                DocumentRepository $documentRepository,
-                                CustomFieldRepository $customFieldRepository,
-                                FileTypeRepository $fileTypeRepository,
-                                PermissionRepository $permissionRepository)
-    {
+    public function __construct(
+        TagRepository $tagRepository,
+        DocumentRepository $documentRepository,
+        CustomFieldRepository $customFieldRepository,
+        FileTypeRepository $fileTypeRepository,
+        PermissionRepository $permissionRepository
+    ) {
         $this->tagRepository = $tagRepository;
         $this->documentRepository = $documentRepository;
         $this->customFieldRepository = $customFieldRepository;
@@ -125,7 +126,7 @@ class DocumentController extends Controller
     {
         /** @var Document $document */
         $document = $this->documentRepository
-            ->getOneEagerLoaded($id,['files', 'files.fileType', 'files.createdBy', 'activities', 'activities.createdBy', 'tags']);
+            ->getOneEagerLoaded($id, ['files', 'files.fileType', 'files.createdBy', 'activities', 'activities.createdBy', 'tags']);
         if (empty($document)) {
             abort(404);
         }
@@ -154,7 +155,7 @@ class DocumentController extends Controller
         $user = User::findOrFail($input['user_id']);
         $doc_permissions = $input['document_permissions'];
         $document = Document::findOrFail($id);
-        $this->permissionRepository->setDocumentLevelPermissionForUser($user,$document,$doc_permissions);
+        $this->permissionRepository->setDocumentLevelPermissionForUser($user, $document, $doc_permissions);
         Flash::success(ucfirst(config('settings.document_label_singular')) . " Permission allocated");
         return redirect()->back();
     }
@@ -164,7 +165,7 @@ class DocumentController extends Controller
         abort_if(!auth()->user()->can('user manage permission'), 403, 'This action is unauthorized.');
         $user = User::findOrFail($userId);
         $document = Document::findOrFail($documentId);
-        $this->permissionRepository->deleteDocumentLevelPermissionForUser($document,$user);
+        $this->permissionRepository->deleteDocumentLevelPermissionForUser($document, $user);
         Flash::success(ucfirst(config('settings.document_label_singular')) . " Permission removed");
         return redirect()->back();
     }
@@ -196,7 +197,7 @@ class DocumentController extends Controller
         $document = Document::findOrFail($id);
         $data = $request->all();
         $this->authorize('update', [$document, $data['tags']]);
-        $this->documentRepository->updateWithTags($data,$document);
+        $this->documentRepository->updateWithTags($data, $document);
         $document->newActivity(ucfirst(config('settings.document_label_singular')) . " Updated");
         Flash::success(ucfirst(config('settings.document_label_singular')) . " Updated Successfully");
         return redirect()->route('documents.index');
@@ -213,7 +214,7 @@ class DocumentController extends Controller
         $document = Document::findOrFail($id);
         $this->authorize('delete', $document);
         $document->newActivity(ucfirst(config('settings.document_label_singular')) . " Deleted");
-        $this->documentRepository->deleteWithFiles($document,true);
+        $this->documentRepository->deleteWithFiles($document, true);
         Flash::success(ucfirst(config('settings.document_label_singular')) . " Deleted Successfully");
         return redirect()->route('documents.index');
     }
@@ -223,7 +224,7 @@ class DocumentController extends Controller
         $document = Document::findOrFail($id);
         $this->authorize('verify', $document);
         $action = $request->get('action');
-        $comment = $request->get('vcomment',"");
+        $comment = $request->get('vcomment', "");
         if (!empty($comment)) {
             $comment = " with comment: <i>" . $comment . "</i>";
         }
@@ -246,8 +247,8 @@ class DocumentController extends Controller
     public function showUploadFilesUi($id)
     {
         $document = Document::find($id);
-        if(empty($document)){
-            Flash::error("Oh No..., try to create some ".config('settings.document_label_singular')." before uploading ".config('settings.file_label_plural'));
+        if (empty($document)) {
+            Flash::error("Oh No..., try to create some " . config('settings.document_label_singular') . " before uploading " . config('settings.file_label_plural'));
             return redirect()->route('documents.index');
         }
         $this->authorize('update', [$document, $document->tags->pluck('id')]);
@@ -273,7 +274,8 @@ class DocumentController extends Controller
         }
     }
 
-    private function prepareFilesData($filesData){
+    private function prepareFilesData($filesData)
+    {
         $imageVariants = explode(',', config('settings.image_files_resize'));
         foreach ($filesData as $i => $fileData) {
             /** @var UploadedFile $file */

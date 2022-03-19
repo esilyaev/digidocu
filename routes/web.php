@@ -23,9 +23,9 @@ Route::get('config', function () {
 
 Auth::routes();
 
-Route::group(['prefix' => 'admin', 'middleware' => ['auth','check_block']], function () {
+Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'check_block']], function () {
     Route::get('/home', 'HomeController@index')->name('admin.dashboard');
-    Route::match(['get','post'],'/profile', 'HomeController@profile')->name('profile.manage');
+    Route::match(['get', 'post'], '/profile', 'HomeController@profile')->name('profile.manage');
     Route::group(['prefix' => 'advanced'], function () {
         Route::resource('settings', 'SettingController');
         Route::resource('custom-fields', 'CustomFieldController', ['names' => 'customFields']);
@@ -36,16 +36,20 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth','check_block']], func
     Route::resource('tags', 'TagController');
 
     Route::resource('documents', 'DocumentController');
-    Route::post('document-verify/{id}','DocumentController@verify')->name('documents.verify');
-    Route::post('document-store-permission/{id}','DocumentController@storePermission')->name('documents.store-permission');
-    Route::post('document-delete-permission/{document_id}/{user_id}','DocumentController@deletePermission')->name('documents.delete-permission');
+    Route::post('document-verify/{id}', 'DocumentController@verify')->name('documents.verify');
+    Route::post('document-store-permission/{id}', 'DocumentController@storePermission')->name('documents.store-permission');
+    Route::post('document-delete-permission/{document_id}/{user_id}', 'DocumentController@deletePermission')->name('documents.delete-permission');
     Route::group(['prefix' => '/files-upload', 'as' => 'documents.files.'], function () {
         Route::get('/{id}', 'DocumentController@showUploadFilesUi')->name('create');
         Route::post('/{id}', 'DocumentController@storeFiles')->name('store');
         Route::delete('/{id}', 'DocumentController@deleteFile')->name('destroy');
     });
 
-    Route::get('/_files/{dir?}/{file?}','HomeController@showFile')->name('files.showfile');
-    Route::get('/_zip/{id}/{dir?}','HomeController@downloadZip')->name('files.downloadZip');
-    Route::post('/_pdf','HomeController@downloadPdf')->name('files.downloadPdf');
+    Route::get('/_files/{dir?}/{file?}', 'HomeController@showFile')->name('files.showfile');
+    Route::get('/_zip/{id}/{dir?}', 'HomeController@downloadZip')->name('files.downloadZip');
+    Route::post('/_pdf', 'HomeController@downloadPdf')->name('files.downloadPdf');
+
+    Route::get('/issues', function () {
+        return 'issues page';
+    })->name('issues');
 });
